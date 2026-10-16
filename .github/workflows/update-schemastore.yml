@@ -1,6 +1,11 @@
 name: Update SchemaStore
 
 on:
+  push:
+    branches: [test/4652-schemastore-dry-run]
+    paths:
+      - .github/workflows/update-schemastore.yml
+      - .github/scripts/schemastore/**
   release:
     types: [published]
   workflow_dispatch:
@@ -24,6 +29,7 @@ concurrency:
 jobs:
   update:
     if: >-
+      (github.event_name == 'push' && github.repository == 'alokkumardalei-wq/kestra') ||
       (github.event_name == 'workflow_dispatch' &&
       (inputs.dry-run || github.repository == 'kestra-io/kestra')) ||
       (github.repository == 'kestra-io/kestra' && github.event_name == 'release' &&
@@ -31,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      RELEASE_TAG: ${{ inputs.tag || github.event.release.tag_name }}
+      RELEASE_TAG: ${{ inputs.tag || github.event.release.tag_name || 'v2.0.5' }}
       SCHEMASTORE_DIR: ${{ github.workspace }}/schemastore
     steps:
       - name: Checkout automation
